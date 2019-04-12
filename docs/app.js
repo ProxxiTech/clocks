@@ -14,6 +14,20 @@ $(document).ready(() => {
     }
   ];
 
+  const inputTimezone = $('#inputTimezone');
+  zones.forEach((zone) => {
+    inputTimezone.append(`<option value="${zone.id}" >${zone.tz}</option>`);
+  });
+
+  function getFromZone() {
+    const val = inputTimezone.val();
+    let selected;
+    zones.forEach((zone) => {
+      if (zone.id == val) { selected = zone; }
+    });
+    return selected;
+  }
+
   function offset(tz_a, tz_b) {
     const offset_a = moment.tz.zone(tz_a).utcOffset(moment());
     const offset_b = moment.tz.zone(tz_b).utcOffset(moment());
@@ -25,13 +39,13 @@ $(document).ready(() => {
     if (os > 0) out = "+ ";
     if (os < 0) out = "- ";
     // @HACK they are some offsets that are not even hours
-    out = `${out} ${moment.duration(os, 'minutes').asHours()}:00`;
+    out = `${out} ${moment.duration(Math.abs(os), 'minutes').asHours()}:00`;
     return out;
   }
 
   setInterval(() => {
     const now = moment();
-    const from_zone = zones[0];
+    const from_zone = getFromZone();
     zones.forEach((zone) => {
       const root = $(`#${zone.id}`);
       root.children('.time').text(now.tz(zone.tz).format('LTS'));
